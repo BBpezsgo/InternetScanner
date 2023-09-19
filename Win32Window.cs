@@ -60,13 +60,23 @@ namespace InternetScanner
             switch (message)
             {
                 case WM.WM_COMMAND:
+                    var low = BitConverter.ToInt16(BitConverter.GetBytes(wParam.ToUInt32()), 0);
+                    var high = BitConverter.ToInt16(BitConverter.GetBytes(wParam.ToUInt32()), 2);
+                    if ((high == 0) && (lParam != IntPtr.Zero))
+                    {
+                        switch (low)
+                        {
+                            default:
+                                break;
+                        }
+                    }
+                    return User32.DefWindowProcW(window, message, wParam, lParam);
                     switch (wParam.ToUInt32())
                     {
                         case 11:
                             User32.MessageBox(IntPtr.Zero, "hello windows", "title", 0);
                             break;
                     }
-                    return User32.DefWindowProcW(window, message, wParam, lParam);
                 case WM.WM_CLOSE:
                     if (User32.MessageBox(window, "Really quit?", "My application", (uint)MessageBoxButton.MB_OKCANCEL) == MessageBoxResult.IDOK)
                     {
