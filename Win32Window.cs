@@ -1,15 +1,19 @@
 ﻿using Win32;
+using Win32.Utilities;
 
 namespace InternetScanner
 {
     internal class Win32Window : IDisposable
     {
+        static readonly Dictionary<IntPtr, Win32Window> Handlers = new();
+
         IntPtr Handle;
-        private IntPtr BrugButton;
+        bool IsDestroyed;
+        readonly Dictionary<ushort, Control> Controls;
 
         public Win32Window()
         {
-
+            Controls = new();
         }
 
         public unsafe void Initialize(string title, int width, int height, uint style = WS.OVERLAPPEDWINDOW | WS.VISIBLE)
@@ -45,14 +49,48 @@ namespace InternetScanner
                     0, 0,
                     width, height,
                     IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, null);
+                Handlers.Add(Handle, this);
+                IsDestroyed = false;
             }
 
-            this.BrugButton = CreateButton(Handle, "Bruh", 10, 10, 50, 20);
+            {
+                ushort newControlId = MakeId();
+                ComboBox newControl = new(Handle, "Bruh", 10, 10, 50, 20, newControlId);
+                Controls.Add(newControlId, newControl);
+
+                newControl.AddString("Eh");
+                newControl.SelectedIndex = 0;
+
+                newControl.OnSelectionChanged += (sender, parent) =>
+                {
+                    string selectedItemText = sender.GetString(sender.SelectedIndex);
+                    User32.MessageBox(parent, selectedItemText, "Item Selected", (uint)MessageBoxButton.MB_OK);
+                    return IntPtr.Zero;
+                };
+            }
+
+            {
+                ushort newControlId = MakeId();
+                Button newControl = new(Handle, "Bruh", 60, 10, 50, 20, newControlId);
+                Controls.Add(newControlId, newControl);
+
+                newControl.OnEvent += (senderHandle, parent, code) =>
+                {
+                    ComboBox sender = new(senderHandle);
+                    if (code == BN.BN_CLICKED)
+                    {
+                        User32.MessageBox(parent, "bruh", "Button Clicked", (uint)MessageBoxButton.MB_OK);
+                        return IntPtr.Zero;
+                    }
+
+                    return null;
+                };
+            }
         }
 
         public void Dispose()
         {
-
+            Handlers.Remove(Handle);
         }
 
         static unsafe IntPtr WinProc(IntPtr window, uint message, UIntPtr wParam, IntPtr lParam)
@@ -60,22 +98,10 @@ namespace InternetScanner
             switch (message)
             {
                 case WM.WM_COMMAND:
-                    var low = BitConverter.ToInt16(BitConverter.GetBytes(wParam.ToUInt32()), 0);
-                    var high = BitConverter.ToInt16(BitConverter.GetBytes(wParam.ToUInt32()), 2);
-                    if ((high == 0) && (lParam != IntPtr.Zero))
+                    if (lParam != IntPtr.Zero) // This is a control
                     {
-                        switch (low)
-                        {
-                            default:
-                                break;
-                        }
-                    }
-                    return User32.DefWindowProcW(window, message, wParam, lParam);
-                    switch (wParam.ToUInt32())
-                    {
-                        case 11:
-                            User32.MessageBox(IntPtr.Zero, "hello windows", "title", 0);
-                            break;
+                        ushort controlIdentifier = Macros.LOWORD(wParam);
+                        Handlers[window].Controls[controlIdentifier].DispatchEvent(window, message, wParam, lParam);
                     }
                     return User32.DefWindowProcW(window, message, wParam, lParam);
                 case WM.WM_CLOSE:
@@ -86,6 +112,7 @@ namespace InternetScanner
                     }
                     return IntPtr.Zero;
                 case WM.WM_DESTROY:
+                    Handlers[window].IsDestroyed = true;
                     User32.PostQuitMessage(0);
                     return IntPtr.Zero;
                 default:
@@ -93,27 +120,16 @@ namespace InternetScanner
             }
         }
 
-        static unsafe IntPtr CreateButton(IntPtr window, string label, int x, int y, int width, int height)
+        ushort MakeId()
         {
-            fixed (char* windowNamePtr = label)
-            fixed (char* classNamePtr = "BUTTON")
+            ushort result = 1;
+            int endlessSafe = ushort.MaxValue - 1;
+            while (Controls.ContainsKey(result))
             {
-                uint exStyles = 0;
-
-                return User32.CreateWindowExW(
-                    exStyles,
-                    classNamePtr,  // Predefined class; Unicode assumed 
-                    windowNamePtr,      // Button text 
-                    WS.TABSTOP | WS.VISIBLE | WS.CHILD,  // Styles 
-                    x,         // x position 
-                    y,         // y position 
-                    width,        // Button width
-                    height,        // Button height
-                    window,     // Parent window
-                    IntPtr.Zero,       // No menu.
-                    User32.GetWindowLongPtrW(window, -6)
-                    );      // Pointer not needed.
+                result++;
+                if (--endlessSafe <= 0) throw new Exception($"Failed to generate control id");
             }
+            return result;
         }
 
         public unsafe void HandleEvents()
@@ -128,13 +144,19 @@ namespace InternetScanner
                 else
                 { User32.DispatchMessageW(&msg); }
             }
+        }
 
-            if ((res = User32.PeekMessageW(&msg, BrugButton, 0, 0, PM.PM_REMOVE)) != 0)
+        public unsafe void HandleEventsBlocking()
+        {
+            Message msg;
+            int res;
+
+            while (!IsDestroyed && (res = User32.GetMessageW(&msg, Handle, 0, 0)) != 0)
             {
                 if (res == -1)
                 { throw WindowsException.Get(); }
-                else
-                { User32.DispatchMessageW(&msg); }
+
+                User32.DispatchMessageW(&msg);
             }
         }
 

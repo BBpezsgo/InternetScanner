@@ -31,9 +31,13 @@ namespace InternetScanner
             d = new(d.Address);
             e = new(e.Address);
             */
+            {
+                Win32Window win32Window = new();
+                win32Window.Initialize("Bruh", 300, 200);
+                win32Window.HandleEventsBlocking();
+            }
 
-            Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
-            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+            return;
 
             if (SDL_Init(SDL_INIT_EVERYTHING) != 0) throw SdlException.Get();
 
