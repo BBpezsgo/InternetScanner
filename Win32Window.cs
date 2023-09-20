@@ -77,6 +77,7 @@ namespace InternetScanner
                             User32.MessageBox(IntPtr.Zero, "hello windows", "title", 0);
                             break;
                     }
+                    return User32.DefWindowProcW(window, message, wParam, lParam);
                 case WM.WM_CLOSE:
                     if (User32.MessageBox(window, "Really quit?", "My application", (uint)MessageBoxButton.MB_OKCANCEL) == MessageBoxResult.IDOK)
                     {
