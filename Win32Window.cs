@@ -1,11 +1,18 @@
-﻿using Win32;
+﻿using System.Runtime.InteropServices;
+using Win32;
 using Win32.Utilities;
 
 namespace InternetScanner
 {
+    class StateInfo
+    {
+
+    }
+
     internal class Win32Window : IDisposable
     {
         static readonly Dictionary<IntPtr, Win32Window> Handlers = new();
+        static readonly List<StateInfo> StateInfos = new();
 
         IntPtr Handle;
         bool IsDestroyed;
@@ -16,7 +23,7 @@ namespace InternetScanner
             Controls = new();
         }
 
-        public unsafe void Initialize(string title, int width, int height, uint style = WS.OVERLAPPEDWINDOW | WS.VISIBLE)
+        public unsafe void Initialize(string title, int width, int height, uint style = WS.WS_OVERLAPPEDWINDOW | WS.WS_VISIBLE)
         {
             fixed (char* classNamePtr = "windowClass")
             {
@@ -42,13 +49,18 @@ namespace InternetScanner
             {
                 uint exStyles = 0;
 
+                StateInfo stateInfo = new();
+                StateInfos.Add(stateInfo);
+
+                GCHandle objHandle = GCHandle.Alloc(stateInfo, GCHandleType.WeakTrackResurrection);
+
                 Handle = User32.CreateWindowExW(exStyles,
                     classNamePtr,
                     windowNamePtr,
                     style,
                     0, 0,
                     width, height,
-                    IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, null);
+                    IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, (void*)GCHandle.ToIntPtr(objHandle));
                 Handlers.Add(Handle, this);
                 IsDestroyed = false;
             }
@@ -93,31 +105,46 @@ namespace InternetScanner
             Handlers.Remove(Handle);
         }
 
-        static unsafe IntPtr WinProc(IntPtr window, uint message, UIntPtr wParam, IntPtr lParam)
+        static IntPtr WinProc(IntPtr hwnd, uint uMsg, UIntPtr wParam, IntPtr lParam)
         {
-            switch (message)
+            if (Handlers.TryGetValue(hwnd, out Win32Window? window) && window.Handle == hwnd)
+            {
+                return window.HandleEvent(uMsg, wParam, lParam);
+            }
+            return User32.DefWindowProcW(hwnd, uMsg, wParam, lParam);
+        }
+
+        IntPtr HandleEvent(uint uMsg, UIntPtr wParam, IntPtr lParam)
+        {
+            switch (uMsg)
             {
                 case WM.WM_COMMAND:
-                    if (lParam != IntPtr.Zero) // This is a control
+                    if (lParam != IntPtr.Zero)
                     {
-                        ushort controlIdentifier = Macros.LOWORD(wParam);
-                        Handlers[window].Controls[controlIdentifier].DispatchEvent(window, message, wParam, lParam);
+                        ushort controlId = Macros.LOWORD(wParam);
+                        if (Controls.TryGetValue(controlId, out Control? control))
+                        {
+                            control.DispatchEvent(Handle, uMsg, wParam, lParam);
+                            return IntPtr.Zero;
+                        }
                     }
-                    return User32.DefWindowProcW(window, message, wParam, lParam);
+                    break;
                 case WM.WM_CLOSE:
-                    if (User32.MessageBox(window, "Really quit?", "My application", (uint)MessageBoxButton.MB_OKCANCEL) == MessageBoxResult.IDOK)
+                    if (User32.MessageBox(Handle, "Really quit?", "My application", (uint)MessageBoxButton.MB_OKCANCEL) == MessageBoxResult.IDOK)
                     {
-                        if (User32.DestroyWindow(window) == 0)
+                        if (User32.DestroyWindow(Handle) == 0)
                         { throw WindowsException.Get(); }
                     }
                     return IntPtr.Zero;
                 case WM.WM_DESTROY:
-                    Handlers[window].IsDestroyed = true;
+                    IsDestroyed = true;
                     User32.PostQuitMessage(0);
                     return IntPtr.Zero;
                 default:
-                    return User32.DefWindowProcW(window, message, wParam, lParam);
+                    break;
             }
+
+            return User32.DefWindowProcW(Handle, uMsg, wParam, lParam);
         }
 
         ushort MakeId()
