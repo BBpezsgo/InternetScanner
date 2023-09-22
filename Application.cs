@@ -8,6 +8,7 @@ using System.Text;
 using DataUtilities;
 using DataUtilities.Serializer;
 using InternetScanner.Mapping;
+using Win32.Utilities;
 using static SDL2.SDL;
 
 namespace InternetScanner
@@ -139,14 +140,14 @@ namespace InternetScanner
         static readonly byte[] PingPayload = Encoding.ASCII.GetBytes("bruh");
 
         readonly SdlWindow SdlWindow;
-        readonly Win32Window Win32Window;
+        readonly Form Win32Window;
 
         internal Application(string[] args)
         {
             SdlWindow = new SdlWindow("Bruh", byte.MaxValue * 4, byte.MaxValue * 3);
             SdlWindow.OnEvent += HandleEvent;
 
-            Win32Window = new Win32Window();
+            Win32Window = new Form("Bruh2", 300, 200);
 
             Canvas = new Color[SdlWindow.Width, SdlWindow.Height];
             ArrayUtils.Fill(Canvas, Color.Gray);
@@ -156,7 +157,6 @@ namespace InternetScanner
         public void Initialize()
         {
             SdlWindow.Initialize();
-            Win32Window.Initialize("Bruh2", 300, 200);
         }
 
         public void Start()
@@ -214,13 +214,13 @@ namespace InternetScanner
 
                 try
                 {
-                    (int x, int y) = IPv4ToGrid(ipv4.Int);
+                    Point point = IPv4ToGrid(ipv4.Int);
 
-                    if (x < 0 || y < 0) continue;
-                    if (y > SdlWindow.Height) break;
-                    if (x > SdlWindow.Width) continue;
+                    if (point.X < 0 || point.Y < 0) continue;
+                    if (point.Y > SdlWindow.Height) break;
+                    if (point.X > SdlWindow.Width) continue;
 
-                    Canvas[x, y] = Color.Gray;
+                    Canvas[point.X, point.Y] = Color.Gray;
 
                     while (t++ > 16)
                     {
@@ -228,7 +228,7 @@ namespace InternetScanner
                         Thread.Sleep(500);
                     }
 
-                    Canvas[x, y] = Color.Blue;
+                    Canvas[point.X, point.Y] = Color.Blue;
 
                     Ping ping = new();
                     Task<PingReply> task = ping.SendPingAsync(ipv4.Address, byte.MaxValue, PingPayload);
@@ -297,12 +297,12 @@ namespace InternetScanner
                 color = Color.Magenta;
             }
 
-            (int X, int Y) = IPv4ToGrid(address.Int);
+            Point point = IPv4ToGrid(address.Int);
 
-            return new Pixel(X, Y, color);
+            return new Pixel(point.X, point.Y, color);
         }
 
-        (int X, int Y) IPv4ToGrid(uint v) => Mapper.Map(v - IPv4.Min.Int);
+        Point IPv4ToGrid(uint v) => Mapper.Map(v - IPv4.Min.Int);
         uint IPv4FromGrid(int x, int y) => (uint)Mapper.Unmap(x, y) + IPv4.Min.Int;
 
         public bool Tick()

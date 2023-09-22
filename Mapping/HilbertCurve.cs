@@ -53,11 +53,11 @@
             }
         }
 
-        public override (int X, int Y) Map(long v)
+        public override Point Map(long v)
         {
             long x = 0, y = 0;
             Map(uint.MaxValue, v, ref x, ref y);
-            return ((int)x, (int)y);
+            return new Point((int)x, (int)y);
         }
 
         public override long Unmap(int x, int y) => Unmap(uint.MaxValue, x, y);

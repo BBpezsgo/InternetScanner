@@ -12,14 +12,14 @@
 
         }
 
-        public override (int X, int Y) Map(long v)
+        public override Point Map(long v)
         {
             IPv4 ipv4 = new((uint)v);
             var square4 = MapToSquare(ipv4.Segment4, SqrtUInt8);
             var square3 = MapToSquare(ipv4.Segment3, SqrtUInt8);
             var square2 = MapToSquare(ipv4.Segment2, SqrtUInt8);
             var square1 = MapToSquare(ipv4.Segment1, SqrtUInt8);
-            return (
+            return new Point(
                 (int)(square1.X * SqrtUInt32) + (square2.X * SqrtUInt16) + (square3.X * SqrtUInt8) + square4.X,
                 (int)(square1.Y * SqrtUInt32) + (square2.Y * SqrtUInt16) + (square3.Y * SqrtUInt8) + square4.Y
             );
@@ -58,16 +58,16 @@
             return new IPv4(v1, v2, v3, v4).Int;
         }
 
-        public static (ushort X, ushort Y) MapToSquare(ushort v, ushort width) => ((ushort)(v % width), (ushort)(v / width));
+        public static Point<ushort> MapToSquare(ushort v, ushort width) => new((ushort)(v % width), (ushort)(v / width));
         public static ushort MapFromSquare(ushort x, ushort y, ushort width) => (ushort)(x + (y * width));
 
-        public static (int X, int Y) MapToSquare(int v, int width) => (v % width, v / width);
+        public static Point MapToSquare(int v, int width) => new(v % width, v / width);
         public static int MapFromSquare(int x, int y, int width) => x + (y * width);
 
-        public static (uint X, uint Y) MapToSquare(uint v, uint width) => (v % width, v / width);
+        public static Point<uint> MapToSquare(uint v, uint width) => new(v % width, v / width);
         public static uint MapFromSquare(uint x, uint y, uint width) => x + (y * width);
 
-        public static (ulong X, ulong Y) MapToSquare(ulong v, ulong width) => (v % width, v / width);
+        public static Point<ulong> MapToSquare(ulong v, ulong width) => new(v % width, v / width);
         public static ulong MapFromSquare(ulong x, ulong y, ulong width) => x + (y * width);
     }
 }

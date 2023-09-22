@@ -11,10 +11,10 @@
             Height = height;
         }
 
-        public abstract (int X, int Y) Map(long v);
+        public abstract Point Map(long v);
 
         public abstract long Unmap(int x, int y);
 
-        public long Unmap((int X, int Y) point) => Unmap(point.X, point.Y);
+        public long Unmap(Point point) => Unmap(point.X, point.Y);
     }
 }

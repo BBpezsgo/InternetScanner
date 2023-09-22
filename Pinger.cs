@@ -37,10 +37,8 @@ namespace InternetScanner
                 }
             }
 
-#pragma warning disable CS8625
             pinger = -1;
             return false;
-#pragma warning restore CS8625
         }
 
         public bool TryPing(IPAddress address, int timeout, byte[] buffer, out Task<PingReply> task)
@@ -51,10 +49,8 @@ namespace InternetScanner
             /*
             if (!TryGetPinger(out int i))
             {
-#pragma warning disable CS8625
                 task = null;
                 return false;
-#pragma warning restore CS8625
             }
 
             Busy[i] = true;

@@ -11,6 +11,7 @@ namespace InternetScanner
 
         public readonly IntPtr Renderer;
         public readonly IntPtr Window;
+        bool IsDisposed;
 
         public event SdlEventListener? OnEvent;
 
@@ -26,6 +27,8 @@ namespace InternetScanner
             Renderer = SDL_CreateRenderer(Window, -1, 0);
 
             if (Renderer == IntPtr.Zero) throw SdlException.Get();
+
+            IsDisposed = false;
         }
 
         public void Initialize()
@@ -50,6 +53,17 @@ namespace InternetScanner
 
         public void Dispose()
         {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+        ~SdlWindow() { Dispose(disposing: false); }
+        void Dispose(bool disposing)
+        {
+            if (IsDisposed) return;
+            IsDisposed = true;
+
+            if (!disposing) return;
+
             SDL_DestroyRenderer(Renderer);
             SDL_DestroyWindow(Window);
             SDL_Quit();

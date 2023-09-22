@@ -1,4 +1,6 @@
-﻿using static SDL2.SDL;
+﻿using Win32;
+using Win32.Utilities;
+using static SDL2.SDL;
 
 namespace InternetScanner
 {
@@ -32,8 +34,42 @@ namespace InternetScanner
             e = new(e.Address);
             */
             {
-                Win32Window win32Window = new();
-                win32Window.Initialize("Bruh", 300, 200);
+                Form win32Window = new("Bruh", 300, 200);
+
+                {
+                    ushort newControlId = win32Window.MakeId();
+                    ComboBox newControl = new(win32Window.Handle, "Bruh", 10, 10, 50, 20, newControlId);
+                    win32Window.Controls.Add(newControlId, newControl);
+
+                    newControl.AddString("Eh");
+                    newControl.SelectedIndex = 0;
+
+                    newControl.OnSelectionChanged += (sender, parent) =>
+                    {
+                        string selectedItemText = sender.GetString(sender.SelectedIndex);
+                        User32.MessageBox(parent, selectedItemText, "Item Selected", (uint)MessageBoxButton.MB_OK);
+                        return IntPtr.Zero;
+                    };
+                }
+
+                {
+                    ushort newControlId = win32Window.MakeId();
+                    Button newControl = new(win32Window.Handle, "Bruh", 60, 10, 50, 20, newControlId);
+                    win32Window.Controls.Add(newControlId, newControl);
+
+                    newControl.OnEvent += (senderHandle, parent, code) =>
+                    {
+                        ComboBox sender = new(senderHandle);
+                        if (code == BN.BN_CLICKED)
+                        {
+                            User32.MessageBox(parent, "bruh", "Button Clicked", (uint)MessageBoxButton.MB_OK);
+                            return IntPtr.Zero;
+                        }
+
+                        return null;
+                    };
+                }
+
                 win32Window.HandleEventsBlocking();
             }
 
