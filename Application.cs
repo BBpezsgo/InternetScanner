@@ -308,7 +308,7 @@ namespace InternetScanner
         public bool Tick()
         {
             SdlWindow.HandleEvents();
-            Win32Window.HandleEvents();
+            // Win32Window.HandleEvents();
 
             Coroutines.Tick();
 

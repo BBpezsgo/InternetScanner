@@ -1,5 +1,6 @@
 ﻿using Win32;
 using Win32.Utilities;
+using static Constants;
 using static SDL2.SDL;
 
 namespace InternetScanner
@@ -36,41 +37,65 @@ namespace InternetScanner
             {
                 Form win32Window = new("Bruh", 300, 200);
 
+                ComboBox? comboBox1 = null;
+                ProgressBar? progressBar1 = null;
+
+                unsafe
+                {
+                    win32Window.OnResize += (sender, rect) =>
+                    {
+                        sender.UpdateWindow();
+                    };
+                }
+
                 {
                     ushort newControlId = win32Window.MakeId();
-                    ComboBox newControl = new(win32Window.Handle, "Bruh", 10, 10, 50, 20, newControlId);
-                    win32Window.Controls.Add(newControlId, newControl);
+                    comboBox1 = new(win32Window.Handle, "Bruh", 10, 10, 50, 200, newControlId);
+                    win32Window.Controls.Add(newControlId, comboBox1);
 
-                    newControl.AddString("Eh");
-                    newControl.SelectedIndex = 0;
+                    comboBox1.AddString("Eh");
+                    comboBox1.SelectedIndex = 0;
 
-                    newControl.OnSelectionChanged += (sender, parent) =>
+                    comboBox1.OnSelectionChanged += (sender, parent) =>
                     {
-                        string selectedItemText = sender.GetString(sender.SelectedIndex);
-                        User32.MessageBox(parent, selectedItemText, "Item Selected", (uint)MessageBoxButton.MB_OK);
+                        // string selectedItemText = sender.GetString(sender.SelectedIndex);
+                        // User32.MessageBox(parent, selectedItemText, "Item Selected", (uint)MessageBoxButton.MB_OK);
                         return IntPtr.Zero;
                     };
                 }
 
                 {
                     ushort newControlId = win32Window.MakeId();
-                    Button newControl = new(win32Window.Handle, "Bruh", 60, 10, 50, 20, newControlId);
-                    win32Window.Controls.Add(newControlId, newControl);
+                    progressBar1 = new(win32Window.Handle, "Bruh", 10, 40, 70, 20, newControlId);
+                    win32Window.Controls.Add(newControlId, progressBar1);
+                    progressBar1.Position = 33;
+                }
 
-                    newControl.OnEvent += (senderHandle, parent, code) =>
+                {
+                    ushort newControlId = win32Window.MakeId();
+                    Button? button1 = new(win32Window.Handle, "Bruh", 60, 10, 50, 20, newControlId);
+                    win32Window.Controls.Add(newControlId, button1);
+
+                    button1.OnClick += (sender) =>
                     {
-                        ComboBox sender = new(senderHandle);
-                        if (code == BN.BN_CLICKED)
-                        {
-                            User32.MessageBox(parent, "bruh", "Button Clicked", (uint)MessageBoxButton.MB_OK);
-                            return IntPtr.Zero;
-                        }
+                        _ = User32.MoveWindow(win32Window.Handle, 0, 0, 300, 200, TRUE);
 
-                        return null;
+                        IntPtr[] children = win32Window.Childs;
+                        RECT rect = win32Window.ClientRect;
+                        // User32.MessageBox(parent, "bruh", "Button Clicked", (uint)MessageBoxButton.MB_OK);
+
+                        progressBar1.Add(10);
+                        progressBar1.State = ProgressBarState.Normal;
                     };
                 }
 
-                win32Window.HandleEventsBlocking();
+                {
+                    ushort newControlId = win32Window.MakeId();
+                    IpAddress ipAddress1 = new(win32Window.Handle, 10, 70, 120, 20, newControlId);
+                    win32Window.Controls.Add(newControlId, ipAddress1);
+                }
+
+                Form.HandleEventsBlocking();
             }
 
             return;
