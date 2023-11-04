@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Data Utilities\Data Utilities.csproj" />
+    <ProjectReference Include="..\DataUtilities\DataUtilities.csproj" />
     <ProjectReference Include="..\Win32-Stuff\Win32.csproj" />
   </ItemGroup>
 

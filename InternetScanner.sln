@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternetScanner", "Internet
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Win32", "..\Win32-Stuff\Win32.csproj", "{F7111905-CEB9-4DB7-9A02-4962B416E85C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data Utilities", "..\Data Utilities\Data Utilities.csproj", "{D070FB7F-1E38-46A3-B10B-E81875DD5362}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data Utilities", "..\DataUtilities\DataUtilities.csproj", "{D070FB7F-1E38-46A3-B10B-E81875DD5362}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B111118-98E4-495C-BB7D-8C39534B6E5F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
