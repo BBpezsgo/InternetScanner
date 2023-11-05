@@ -1,7 +1,4 @@
-﻿using Win32;
-using Win32.Utilities;
-using static Constants;
-using static SDL2.SDL;
+﻿using static SDL2.SDL;
 
 namespace InternetScanner
 {
@@ -9,6 +6,132 @@ namespace InternetScanner
     {
         static void Main(string[] args)
         {
+            Console.WriteLine($"Main invoked");
+            /*
+            Tests.Start();
+            return;
+            */
+            /*
+            unsafe
+            {
+                int nButtonPressed = 0;
+                HResult result;
+                fixed (char* text1 = "Text1")
+                fixed (char* text2 = "Text2")
+                {
+                    result = Comctl32.TaskDialog(
+                        IntPtr.Zero,
+                        IntPtr.Zero,
+                        null,
+                        text1,
+                        text2,
+                        TDCBF.OK_BUTTON,
+                        TD.WARNING_ICON,
+                        &nButtonPressed);
+                }
+
+                if (DBCI.IDOK == nButtonPressed)
+                {
+                    // OK button pressed
+                }
+                else if (DBCI.IDCANCEL == nButtonPressed)
+                {
+                    // Cancel pressed
+                }
+                return;
+            }
+            */
+            /*
+            {
+                Menu menu = Menu.Create();
+
+                menu.AppendMenu(1, "Exit");
+                menu.AppendMenu(2, "What");
+
+                menu.MenuItems[1].SetState(MenuItemState.Grayed);
+
+                using Form form = new("Bruh", 300, 150, menu);
+
+                PopupMenu popupMenu = PopupMenu.CreatePopup();
+                popupMenu.AppendMenu(3, "Bruh");
+                popupMenu.AppendSeparator();
+                popupMenu.AppendMenu(4, "heh");
+
+                form.OnMenuItem += (Form sender, ushort menuItemId) =>
+                {
+                    switch (menuItemId)
+                    {
+                        case 1:
+                            sender.Close();
+                            break;
+                        default:
+                            break;
+                    }
+                };
+
+                form.OnContextMenu += (Form sender, Window context, Win32.Point position) =>
+                {
+                    popupMenu.MenuItems[0].Text = context.Win32ClassName;
+                    popupMenu.Show(context.Handle, position.X, position.Y);
+                };
+
+                StaticControl staticControl = new(form.Handle, "Type something:", new Win32.Rect(5, 5, 100, 20), 1);
+                form.Controls.Add(1, staticControl);
+
+                EditControl editControl = new(form.Handle, "eh", new Win32.Rect(115, 5, 100, 20), 2);
+                form.Controls.Add(2, editControl);
+
+                using Bitmap bitmap = Bitmap.LoadFromFile(".\\img.bmp", 48, 48);
+
+                StaticControl image = new(form.Handle, null, new Win32.Rect(5, 30, 48, 48), 3, SS.BITMAP);
+                form.Controls.Add(3, image);
+
+                image.SetImage(bitmap, IMAGE.BITMAP);
+                image.SendMessage(STM.SETIMAGE, (UIntPtr)0, bitmap);
+
+                Window[] controls = form.Children;
+
+                Form.HandleEventsBlocking();
+                return;
+            }
+            */
+            /*
+            {
+                var windowHandles = Window.GetWindows();
+                for (int i = 0; i < windowHandles.Length; i++)
+                {
+                    Window window = (Window)windowHandles[i];
+                    StringBuilder builder = new();
+                    builder.Append($"0x{Convert.ToString(window.Handle.ToInt64(), 16).PadLeft(8, '0')} {{ ");
+
+                    builder.Append($"\"{window.Text}\"");
+
+                    builder.Append($" {window.ThreadProcessId}");
+
+                    builder.Append($" \"{window.Win32ClassName}\"");
+
+                    if (window.IsMinimized)
+                    { builder.Append(" Minimized"); }
+
+                    if (window.IsMaximized)
+                    { builder.Append(" Maximized"); }
+
+                    if (window.IsVisible)
+                    { builder.Append(" Visible"); }
+
+                    builder.Append(" }");
+                    Console.WriteLine(builder);
+
+                    var root = window.Root;
+                    var children = ((Window)root).Children;
+                    foreach (var childH in children)
+                    {
+                        Window child = (Window)childH;
+                    }
+                }
+                return;
+            }
+            */
             /*
             IPv4 a = new(255, 255, 255, 255);
             IPv4 b = new(0, 0, 0, 0);
@@ -34,6 +157,7 @@ namespace InternetScanner
             d = new(d.Address);
             e = new(e.Address);
             */
+            /*
             {
                 Form win32Window = new("Bruh", 300, 200);
 
@@ -99,6 +223,7 @@ namespace InternetScanner
             }
 
             return;
+            */
 
             if (SDL_Init(SDL_INIT_EVERYTHING) != 0) throw SdlException.Get();
 

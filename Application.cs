@@ -1,11 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using System.Globalization;
-using System.Net;
 using System.Net.NetworkInformation;
-using System.Runtime.CompilerServices;
 using System.Text;
-using DataUtilities;
 using DataUtilities.Serializer;
 using InternetScanner.Mapping;
 using Win32;
@@ -249,16 +245,17 @@ namespace InternetScanner
             ushort ID_ButtonStart;
 
             ButtonSave = new(Win32Form.Handle, "Save", new Win32.Rect(10, 10, 60, 24), Win32Form.GenerateControlId(out ID_ButtonSave));
-            ButtonStop = new(Win32Form.Handle, "Stop", new Win32.Rect(80, 10, 60, 24), Win32Form.GenerateControlId(out ID_ButtonStop));
-            ButtonStart = new(Win32Form.Handle, "Start", new Win32.Rect(150, 10, 60, 24), Win32Form.GenerateControlId(out ID_ButtonStart));
-
             Win32Form.Controls.Add(ID_ButtonSave, ButtonSave);
+            ButtonStop = new(Win32Form.Handle, "Stop", new Win32.Rect(80, 10, 60, 24), Win32Form.GenerateControlId(out ID_ButtonStop));
+            Win32Form.Controls.Add(ID_ButtonStop, ButtonStop);
+            ButtonStart = new(Win32Form.Handle, "Start", new Win32.Rect(150, 10, 60, 24), Win32Form.GenerateControlId(out ID_ButtonStart));
+            Win32Form.Controls.Add(ID_ButtonStart, ButtonStart);
+
             ButtonSave.OnClick += (sender) =>
             {
                 Save();
             };
 
-            Win32Form.Controls.Add(ID_ButtonStop, ButtonStop);
             ButtonStop.OnClick += (sender) =>
             {
                 IsRunning = false;
@@ -267,7 +264,6 @@ namespace InternetScanner
             };
             ButtonStop.Enabled = false;
 
-            Win32Form.Controls.Add(ID_ButtonStart, ButtonStart);
             ButtonStart.OnClick += (sender) =>
             {
                 IsRunning = true;
